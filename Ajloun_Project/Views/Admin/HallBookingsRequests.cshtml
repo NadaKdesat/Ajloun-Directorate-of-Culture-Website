@@ -1,0 +1,196 @@
+﻿@model List<Ajloun_Project.Models.HallBooking>
+@{
+    ViewData["Title"] = "طلبات حجز المسارح";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/statistics.css" asp-append-version="true" />
+
+<style>
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons .btn {
+        min-width: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .badge {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .modal-content {
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 20px;
+        color: #2C6E49;
+        margin-bottom: 0;
+    }
+
+    .modal-body p {
+        font-size: 15px;
+        color: #333;
+        margin: 8px 0;
+    }
+
+    .modal-body strong {
+        color: #4c956c;
+        margin-left: 4px;
+    }
+
+    .btn-close {
+        background-color: transparent;
+        border: none;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #ccc;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-3">طلبات حجز المسارح</h1>
+                <p class="mb-0">مديرية ثقافة عجلون</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>نوع القاعة</th>
+                            <th>تاريخ المناسبة</th>
+                            <th>من</th>
+                            <th>إلى</th>
+                            <th>نوع المناسبة</th>
+                            <th>عنوان المناسبة</th>
+                            <th>اسم المسؤول</th>
+                            <th>رقم التواصل</th>
+                            <th>تاريخ الطلب</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.BookingId</td>
+                                <td>@item.HallType</td>
+                                <td>@item.EventDate?.ToString("yyyy-MM-dd")</td>
+                                <td>@item.StartTime</td>
+                                <td>@item.EndTime</td>
+                                <td>@item.EventType</td>
+                                <td>@item.EventTitle</td>
+                                <td>@item.ResponsibleName</td>
+                                <td>@item.ContactPhone</td>
+                                <td>@item.RequestDate?.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case "Pending":
+                                            <span class="badge bg-warning text-dark">بانتظار الموافقة</span>
+                                            break;
+                                        case "Approved":
+                                            <span class="badge bg-success">تمت الموافقة</span>
+                                            break;
+                                        case "Rejected":
+                                            <span class="badge bg-danger">مرفوض</span>
+                                            break;
+                                        case "PendingContact":
+                                            <span class="badge bg-info text-dark">بانتظار التواصل</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">غير معروف</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        @if (item.Status == "Pending")
+                                        {
+                                            <form asp-action="UpdateHallBookingStatus" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@item.BookingId" />
+                                                <input type="hidden" name="status" value="Approved" />
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="fas fa-check"></i> موافقة
+                                                </button>
+                                            </form>
+
+                                            <form asp-action="UpdateHallBookingStatus" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@item.BookingId" />
+                                                <input type="hidden" name="status" value="Rejected" />
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-times"></i> رفض
+                                                </button>
+                                            </form>
+                                        }
+
+                                        <!-- زر التفاصيل -->
+                                        <a asp-action="HallBookingDetails" asp-route-id="@item.BookingId" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> التفاصيل
+                                        </a>
+
+                                        <!-- زر تحميل المرفق -->
+                                        @if (!string.IsNullOrEmpty(item.AttachmentPath))
+                                        {
+                                            <a href="@item.AttachmentPath" target="_blank" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-download"></i> تحميل الملف
+                                            </a>
+                                        }
+
+                                        <!-- معلومات المستخدم -->
+                                        @if (item.User != null)
+                                        {
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#userContactModal_@item.BookingId">
+                                                معلومات المستخدم
+                                            </button>
+
+                                            <div class="modal fade" id="userContactModal_@item.BookingId" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">معلومات المستخدم</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body text-end">
+                                                            <p><strong>الاسم:</strong> @item.User.FullName</p>
+                                                            <p><strong>الهاتف:</strong> @item.User.Phone</p>
+                                                            <p><strong>البريد الإلكتروني:</strong> @item.User.Email</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

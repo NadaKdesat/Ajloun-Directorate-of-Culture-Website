@@ -1,0 +1,191 @@
+﻿@model IEnumerable<Ajloun_Project.Models.BookReservation>
+
+@{
+    ViewData["Title"] = "إدارة حجوزات الكتب";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/statistics.css" asp-append-version="true">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+
+<style>
+    .status-select {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    .update-form {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .update-btn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .update-btn:hover {
+        background-color: #3e8e41;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .status-approved {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .status-collected {
+        background-color: #17a2b8;
+        color: white;
+    }
+    
+    .status-returned {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .status-rejected {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-3">إدارة حجوزات الكتب</h1>
+                <p class="mb-0">مديرية ثقافة عجلون</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="@Url.Action("ManageBooks", "Library")" class="btn btn-light">
+                    <i class="fas fa-arrow-right"></i> العودة إلى إدارة الكتب
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم الكتاب</th>
+                            <th>المستعير</th>
+                            <th>رقم الهاتف</th>
+                            <th>تاريخ الحجز</th>
+                            <th>تاريخ الاستلام</th>
+                            <th>تاريخ الإرجاع</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var res in Model)
+                        {
+                            <tr>
+                                <td>@res.ReservationId</td>
+                                <td>@res.Book?.Title</td>
+                                <td>@res.User?.FullName</td>
+                                <td>@res.User?.Phone</td>
+                                <td>@res.ReservationDate?.ToString("yyyy-MM-dd")</td>
+                                <td>@res.PickupDate?.ToString("yyyy-MM-dd")</td>
+                                <td>@res.ReturnDate?.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    @{
+                                        string statusClass = res.Status switch
+                                        {
+                                            "Pending" => "status-pending",
+                                            "Approved" => "status-approved",
+                                            "Collected" => "status-collected",
+                                            "Returned" => "status-returned",
+                                            "Rejected" => "status-rejected",
+                                            _ => ""
+                                        };
+                                        
+                                        string statusText = res.Status switch
+                                        {
+                                            "Pending" => "قيد الانتظار",
+                                            "Approved" => "موافق عليه",
+                                            "Collected" => "تم الاستلام",
+                                            "Returned" => "تم الإرجاع",
+                                            "Rejected" => "مرفوض",
+                                            _ => res.Status
+                                        };
+                                    }
+                                    <span class="status-badge @statusClass">@statusText</span>
+                                </td>
+                                <td>
+                                    <form asp-action="UpdateStatus" method="post" class="update-form">
+                                        <input type="hidden" name="id" value="@res.ReservationId" />
+                                        <select name="status" class="status-select form-select form-select-sm">
+                                            <option value="Pending" selected="@(res.Status == "Pending")">قيد الانتظار</option>
+                                            <option value="Approved" selected="@(res.Status == "Approved")">موافق عليه</option>
+                                            <option value="Collected" selected="@(res.Status == "Collected")">تم الاستلام</option>
+                                            <option value="Returned" selected="@(res.Status == "Returned")">تم الإرجاع</option>
+                                            <option value="Rejected" selected="@(res.Status == "Rejected")">مرفوض</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i> تحديث
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            @if (TempData["Success"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم بنجاح',
+                    text: '',
+                    confirmButtonText: 'حسناً'
+                });
+                </text>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'حدث خطأ',
+                    text: '',
+                    confirmButtonText: 'حسناً'
+                });
+                </text>
+            }
+        });
+    </script>
+}

@@ -1,0 +1,161 @@
+﻿@model IEnumerable<Ajloun_Project.Models.Book>
+@{
+    ViewData["Title"] = "إدارة الكتب";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+    var categories = ViewBag.Categories as List<Ajloun_Project.Models.BookCategory>;
+}
+
+<link rel="stylesheet" href="~/css/statistics.css" asp-append-version="true">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+
+<style>
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .action-buttons .btn {
+        width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .action-buttons form {
+        margin: 0;
+    }
+
+    .book-image {
+        width: 50px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    
+    .header-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-3">إدارة الكتب</h1>
+                <p class="mb-0">مديرية ثقافة عجلون</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="header-buttons">
+                    <a href="@Url.Action("ManageReservations", "Library")" class="btn btn-light">
+                        <i class="fas fa-calendar-check"></i>الحجوزات
+                    </a>
+                    <a href="@Url.Action("ManageCategories", "Category")" class="btn btn-light">
+                        <i class="fas fa-tags"></i>التصنيفات
+                    </a>
+                    <a href="@Url.Action("AddBook", "Library")" class="btn btn-light">
+                        <i class="fas fa-plus"></i>إضافة كتاب
+                    </a>
+                    <a href="@Url.Action("ExportBooksToExcel", "Library")" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> تصدير Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الغلاف</th>
+                            <th>العنوان</th>
+                            <th>المؤلف</th>
+                            <th>التصنيف</th>
+                            <th>النسخ</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var book in Model)
+                        {
+                            <tr>
+                                <td>@book.BookId</td>
+                                <td>
+                                    <img src="@book.CoverImageUrl" alt="غلاف" class="book-image" />
+                                </td>
+                                <td>@book.Title</td>
+                                <td>@book.Author</td>
+                                <td>@book.Category?.Name</td>
+                                <td>@book.AvailableCopies</td>
+                                <td>
+                                    @if (book.IsAvailable)
+                                    {
+                                        <span class="badge bg-success">متاح</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">غير متاح</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="EditBook" asp-route-id="@book.BookId" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i> تعديل
+                                        </a>
+                                        <form asp-action="DeleteBook" method="post" class="delete-form" data-book-title="@book.Title">
+                                            <input type="hidden" name="id" value="@book.BookId" />
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn">
+                                                <i class="fas fa-trash"></i> حذف
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteForms = document.querySelectorAll('.delete-form');
+            
+            deleteForms.forEach(form => {
+                const deleteBtn = form.querySelector('.delete-btn');
+                const bookTitle = form.dataset.bookTitle;
+                
+                deleteBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    Swal.fire({
+                        title: 'تأكيد الحذف',
+                        text: `هل أنت متأكد من حذف الكتاب "${bookTitle}"؟`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'نعم، احذف',
+                        cancelButtonText: 'إلغاء'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

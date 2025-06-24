@@ -1,0 +1,499 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "الإحصائيات";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<!-- إضافة المكتبات المطلوبة -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+<link rel="stylesheet" href="~/css/statistics.css" asp-append-version="true">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid py-4">
+    <!-- رأس لوحة التحكم -->
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-3">لوحة التحكم</h1>
+                <p class="mb-0">مديرية ثقافة عجلون</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="d-inline-block p-3 bg-white bg-opacity-10 rounded">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="fas fa-calendar-alt me-3"></i>
+                        <span class="fw-bold" id="current-day" style="margin-right: 5px;"></span>
+                    </div>
+                    <div class="date-container">
+                        <div id="current-date" class="hijri-date"></div>
+                        <div id="gregorian-date" class="gregorian-date"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- البطاقات الإحصائية -->
+    <div class="row g-4 mb-4">
+        <!-- الدورات -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">الدورات</h6>
+                            <h2 class="stat-value">@Model.TotalCourses</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-graduation-cap"></i> دورة
+                            </span>
+                        </div>
+                        <div class="stat-icon text-primary">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- المهرجانات -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">المهرجانات</h6>
+                            <h2 class="stat-value">@Model.TotalFestivals</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-calendar-alt"></i> مهرجان
+                            </span>
+                        </div>
+                        <div class="stat-icon text-success">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الفعاليات الثقافية -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">الفعاليات الثقافية</h6>
+                            <h2 class="stat-value">@Model.TotalCulturalEvents</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-theater-masks"></i> فعالية
+                            </span>
+                        </div>
+                        <div class="stat-icon text-info">
+                            <i class="fas fa-theater-masks"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الهيئات الثقافية -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">الهيئات الثقافية</h6>
+                            <h2 class="stat-value">@Model.TotalCulturalAssociations</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-users"></i> هيئة
+                            </span>
+                        </div>
+                        <div class="stat-icon text-warning">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- حجوزات المسارح -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">حجوزات المسارح</h6>
+                            <h2 class="stat-value">@Model.TotalHallBookings</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-door-open"></i> حجز
+                            </span>
+                        </div>
+                        <div class="stat-icon text-danger">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الكتب -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">الكتب</h6>
+                            <h2 class="stat-value">@Model.TotalBooks</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-book"></i> كتاب
+                            </span>
+                        </div>
+                        <div class="stat-icon text-primary">
+                            <i class="fas fa-book"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- حجوزات الكتب -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">حجوزات الكتب</h6>
+                            <h2 class="stat-value">@Model.TotalBookReservations</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-book-reader"></i> حجز
+                            </span>
+                        </div>
+                        <div class="stat-icon text-success">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الأعمال الفنية -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">الأعمال الفنية</h6>
+                            <h2 class="stat-value">@Model.TotalArtworks</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-palette"></i> عمل
+                            </span>
+                        </div>
+                        <div class="stat-icon text-info">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الحرف اليدوية -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">الحرف اليدوية</h6>
+                            <h2 class="stat-value">@Model.TotalHandicrafts</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-paint-brush"></i> حرفة
+                            </span>
+                        </div>
+                        <div class="stat-icon text-warning">
+                            <i class="fas fa-paint-brush"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- المستخدمين -->
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-label">المستخدمين</h6>
+                            <h2 class="stat-value">@Model.TotalUsers</h2>
+                            <span class="trend-indicator trend-up">
+                                <i class="fas fa-user"></i> مستخدم
+                            </span>
+                        </div>
+                        <div class="stat-icon text-danger">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- المخططات البيانية -->
+    <div class="row g-4 mb-4">
+        <!-- مخطط دائري للتوزيع العام -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">التوزيع العام</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="generalChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- مخطط دائري للمستخدمين -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">توزيع النشاطات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="activitiesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مخطط متحرك -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">المهرجانات والكتب خلال الأسبوع</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        // عرض التاريخ الهجري والميلادي
+        const today = new Date();
+        
+        // عرض اليوم
+        document.getElementById('current-day').textContent = today.toLocaleDateString('ar-SA', {
+            weekday: 'long'
+        });
+        
+        // التاريخ الهجري
+        document.getElementById('current-date').textContent = today.toLocaleDateString('ar-SA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // التاريخ الميلادي
+        document.getElementById('gregorian-date').textContent = today.toLocaleDateString('ar-SA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            calendar: 'gregory'
+        });
+
+        // مخطط دائري للتوزيع العام
+        const generalCtx = document.getElementById('generalChart').getContext('2d');
+        new Chart(generalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['الدورات', 'المهرجانات', 'الفعاليات', 'الهيئات', 'الحجوزات', 'الكتب', 'الأعمال الفنية', 'الحرف اليدوية'],
+                datasets: [{
+                    data: [
+                        @Model.TotalCourses,
+        @Model.TotalFestivals,
+                        @Model.TotalCulturalEvents,
+                        @Model.TotalCulturalAssociations,
+                        @Model.TotalHallBookings,
+                        @Model.TotalBooks,
+                        @Model.TotalArtworks,
+                        @Model.TotalHandicrafts
+                    ],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(23, 162, 184, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(111, 66, 193, 0.8)',
+                        'rgba(0, 123, 255, 0.8)',
+                        'rgba(255, 127, 80, 0.8)',
+                        'rgba(108, 117, 125, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(23, 162, 184, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(111, 66, 193, 1)',
+                        'rgba(0, 123, 255, 1)',
+                        'rgba(255, 127, 80, 1)',
+                        'rgba(108, 117, 125, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 14
+                            },
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // مخطط دائري للنشاطات
+        const activitiesCtx = document.getElementById('activitiesChart').getContext('2d');
+        new Chart(activitiesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['حجوزات المسارح', 'حجوزات الكتب', 'المستخدمين'],
+                datasets: [{
+                    data: [
+                        @Model.TotalHallBookings,
+                        @Model.TotalBookReservations,
+                        @Model.TotalUsers
+                    ],
+                    backgroundColor: [
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(0, 123, 255, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(0, 123, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 14
+                            },
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // مخطط متحرك
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        const chartData = @Html.Raw(Json.Serialize(Model.ChartData));
+
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'المهرجانات',
+                        data: chartData.festivalsData,
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'الكتب',
+                        data: chartData.booksData,
+                        borderColor: 'rgba(23, 162, 184, 1)',
+                        backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            },
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#000',
+                        bodyColor: '#000',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        padding: 10,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+
+        // تحديث الإحصائيات كل 5 دقائق
+        setInterval(function() {
+            location.reload();
+        }, 300000);
+    </script>
+} 

@@ -1,0 +1,58 @@
+﻿@model List<Ajloun_Project.Models.GalleryImage>
+@{
+    ViewData["Title"] = "Ajloun Cultural Gallery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = Model.Select(m => m.Category).Distinct().ToList();
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/Gallery.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap" rel="stylesheet">
+}
+
+<header class="modern-header">
+    <div class="overlay">
+        <div class="header-content">
+            <h1>معرض الصور</h1>
+            <p class="subtitle">جولة بصرية بين أحضان الجمال والتاريخ العريق في ربوع عجلون</p>
+        </div>
+    </div>
+</header>
+
+<main class="gallery-container">
+    <div class="gallery-nav">
+        <button class="active">الكل</button>
+        @foreach (var category in categories)
+        {
+            <button>@category</button>
+        }
+    </div>
+
+    <div class="gallery-grid">
+        @foreach (var image in Model)
+        {
+            <div class="gallery-item" data-category="@image.Category">
+                <img src="@image.ImageUrl" alt="@image.Title" />
+                <div class="item-overlay">
+                    <h3 class="item-title">@image.Title</h3>
+                    <span class="item-category">@image.Category</span>
+                </div>
+            </div>
+        }
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.gallery-nav button').forEach(button => {
+            button.addEventListener('click', function () {
+                document.querySelectorAll('.gallery-nav button').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                const category = this.textContent.toLowerCase();
+                document.querySelectorAll('.gallery-item').forEach(item => {
+                    const itemCategory = item.getAttribute('data-category')?.toLowerCase() || '';
+                    item.style.display = (category === 'الكل' || itemCategory === category) ? 'block' : 'none';
+                });
+            });
+        });
+    </script>
+}

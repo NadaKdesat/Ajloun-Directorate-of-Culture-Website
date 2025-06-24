@@ -1,0 +1,285 @@
+﻿@model Ajloun_Project.Models.HallBooking
+@{
+    ViewData["Title"] = "طلب حجز قاعة / مسرح";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userId = Context.Session.GetInt32("UserId");
+    var role = Context.Session.GetString("Role");
+}
+
+<!-- Hero Section موحد -->
+<div class="hero-section">
+    <div class="hero-content text-center">
+        <h1 class="hero-title">             حجز القاعات والمسارح</h1>
+        <p class="hero-subtitle">            تقديم طلب حجز قاعة أو مسرح في مديرية ثقافة عجلون
+</p>
+    </div>
+</div>
+
+
+<div class="container my-5">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="row g-3 booking-form">
+        <div class="col-md-6">
+            <label asp-for="HallType" class="form-label">نوع القاعة</label>
+            <select asp-for="HallType" class="form-select" required>
+                <option disabled selected>-- اختر --</option>
+                <option value="مسرح">مسرح</option>
+                <option value="قاعة متعددة">قاعة متعددة</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="EventType" class="form-label">نوع الفعالية</label>
+            <input asp-for="EventType" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="EventTitle" class="form-label">عنوان الفعالية</label>
+            <input asp-for="EventTitle" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="EventDate" class="form-label">تاريخ الفعالية</label>
+            <input asp-for="EventDate" class="form-control" type="date" required />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="StartTime" class="form-label">وقت البدء</label>
+            <input asp-for="StartTime" class="form-control" type="time" required />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="EndTime" class="form-label">وقت الانتهاء</label>
+            <input asp-for="EndTime" class="form-control" type="time" required />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">الراعي الرسمي</label>
+            <input name="GuestOfHonor" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="AccompanyingActivities" class="form-label">أنشطة مرافقة</label>
+            <input asp-for="AccompanyingActivities" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="GuestCount" class="form-label">عدد الحضور المتوقع</label>
+            <input asp-for="GuestCount" class="form-control" type="number" min="1" />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="ContactPhone" class="form-label">رقم التواصل</label>
+            <input asp-for="ContactPhone" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="ResponsibleName" class="form-label">اسم المسؤول</label>
+            <input asp-for="ResponsibleName" class="form-control" />
+        </div>
+
+        <!-- الاحتياجات الفنية -->
+        <div class="col-12">
+            <div class="card checkbox-card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">الاحتياجات الفنية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        @* شاشات *@
+                        <div class="col-md-4">
+                            <input type="checkbox" class="btn-check" id="needsScreens" asp-for="NeedsScreens" autocomplete="off">
+                            <label class="btn btn-outline-dark w-100" for="needsScreens">
+                                <i class="fas fa-tv me-2"></i> شاشات
+                            </label>
+                        </div>
+                        @* بروجكتور *@
+                        <div class="col-md-4">
+                            <input type="checkbox" class="btn-check" id="needsProjector" asp-for="NeedsProjector" autocomplete="off">
+                            <label class="btn btn-outline-dark w-100" for="needsProjector">
+                                <i class="fas fa-video me-2"></i> بروجكتور
+                            </label>
+                        </div>
+                        @* تفاعل الجمهور *@
+                        <div class="col-md-4">
+                            <input type="checkbox" class="btn-check" id="needsAudience" asp-for="NeedsAudienceInteraction" autocomplete="off">
+                            <label class="btn btn-outline-dark w-100" for="needsAudience">
+                                <i class="fas fa-users me-2"></i> تفاعل الجمهور
+                            </label>
+                        </div>
+                        @* فيلم *@
+                        <div class="col-md-4">
+                            <input type="checkbox" class="btn-check" id="needsFilm" asp-for="NeedsFilm" autocomplete="off">
+                            <label class="btn btn-outline-dark w-100" for="needsFilm">
+                                <i class="fas fa-film me-2"></i> فيلم
+                            </label>
+                        </div>
+                        @* كمبيوتر *@
+                        <div class="col-md-4">
+                            <input type="checkbox" class="btn-check" id="needsPc" asp-for="NeedsPconStage" autocomplete="off">
+                            <label class="btn btn-outline-dark w-100" for="needsPc">
+                                <i class="fas fa-laptop me-2"></i> كمبيوتر على المسرح
+                            </label>
+                        </div>
+                        @* توثيق *@
+                        <div class="col-md-4">
+                            <input type="checkbox" class="btn-check" id="needsDoc" asp-for="NeedsDocumentation" autocomplete="off">
+                            <label class="btn btn-outline-dark w-100" for="needsDoc">
+                                <i class="fas fa-camera me-2"></i> توثيق
+                            </label>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="OtherTechnicalNeeds" class="form-label">احتياجات فنية أخرى</label>
+                            <textarea asp-for="OtherTechnicalNeeds" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">إرفاق ملف</label>
+                            <input type="file" name="UploadedFile" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (role == "User")
+        {
+            <input type="hidden" asp-for="UserId" value="@userId" />
+        }
+        else if (role == "CultureOrg")
+        {
+            <div class="col-md-6">
+                <label asp-for="CultureOrgId" class="form-label">الهيئة الثقافية</label>
+                <select asp-for="CultureOrgId" class="form-select">
+                    <option disabled selected>-- اختر الهيئة --</option>
+                    @foreach (var org in ViewBag.Associations)
+                    {
+                        <option value="@org.CultureOrgId">@org.Name</option>
+                    }
+                </select>
+            </div>
+        }
+
+        <div class="col-12 text-center mt-4">
+            <button type="submit" class="btn btn-success btn-lg px-5 py-2">
+                <i class="fas fa-paper-plane me-2"></i> إرسال الطلب
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <style>
+     :root {
+    --primary: #355E3B;     /* أخضر رئيسي */
+    --accent: #FFE15D;      /* ذهبي */
+    --dark: #1E2F23;        /* شريط غامق */
+    --light: #EFF5EC;       /* خلفية ناعمة */
+    --text-dark: #1B1B2F;
+    --text-light: #ffffff;
+}
+.hero-section {
+    background-color: var(--primary);
+    padding: 80px 20px 60px;
+    border-bottom: 12px solid var(--dark);
+    color: var(--text-light);
+}
+
+.hero-title {
+    color: var(--accent);
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-subtitle {
+    color: var(--text-light);
+    font-size: 1.2rem;
+}
+
+        .modern-header {
+            height: 320px;
+            background: linear-gradient(rgba(30, 47, 35, 0.85), rgba(30, 47, 35, 0.85)),
+                        url('/images/hall-booking-bg.jpg') center/cover no-repeat;
+            position: relative;
+            border-top: 25px solid var(--dark);
+            border-bottom: 25px solid var(--dark);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .modern-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        }
+
+        .modern-header .subtitle {
+            font-size: 1.2rem;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+        }
+
+        .booking-form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .checkbox-card {
+            border: none;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+    </style>
+}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.btn-check').forEach(function (checkbox) {
+            const label = document.querySelector(`label[for="${checkbox.id}"]`);
+            if (checkbox.checked) {
+                label.classList.add('active', 'btn-success');
+                label.classList.remove('btn-outline-dark');
+            } else {
+                label.classList.remove('active', 'btn-success');
+                label.classList.add('btn-outline-dark');
+            }
+
+            checkbox.addEventListener('change', function () {
+                if (checkbox.checked) {
+                    label.classList.add('active', 'btn-success');
+                    label.classList.remove('btn-outline-dark');
+                } else {
+                    label.classList.remove('active', 'btn-success');
+                    label.classList.add('btn-outline-dark');
+                }
+            });
+        });
+    });
+</script>

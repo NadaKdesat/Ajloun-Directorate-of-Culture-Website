@@ -1,0 +1,105 @@
+﻿@model Ajloun_Project.Models.News
+@{
+    ViewData["Title"] = "إضافة خبر جديد";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/statistics.css" asp-append-version="true">
+
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        border-color: #80bdff;
+    }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-3">إضافة خبر جديد</h1>
+                <p class="mb-0">مديرية ثقافة عجلون</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="form-container">
+    <form asp-action="Create" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
+                    <div class="form-group">
+                        <label asp-for="Title" class="form-label">العنوان</label>
+            <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="validation-message"></span>
+        </div>
+
+                    <div class="form-group">
+                        <label asp-for="Content" class="form-label">المحتوى</label>
+                        <textarea asp-for="Content" class="form-control" rows="6" id="Content"></textarea>
+                        <span asp-validation-for="Content" class="validation-message"></span>
+        </div>
+
+                    <div class="form-group">
+                        <label class="form-label">رفع صورة الخبر</label>
+            <input type="file" name="imageFile" class="form-control" />
+        </div>
+
+                    <div class="form-group">
+                        <label asp-for="Category" class="form-label">التصنيف</label>
+            <input asp-for="Category" class="form-control" />
+                        <span asp-validation-for="Category" class="validation-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> نشر الخبر
+                        </button>
+                        <a href="@Url.Action("AdminList", "News")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> العودة للقائمة
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#Content'), {
+                language: 'ar'
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+
+}

@@ -1,0 +1,131 @@
+﻿@model IEnumerable<Ajloun_Project.Models.BookCategory>
+
+@{
+    ViewData["Title"] = "إدارة تصنيفات الكتب";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/statistics.css" asp-append-version="true">
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-3">إدارة تصنيفات الكتب</h1>
+                <p class="mb-0">مديرية ثقافة عجلون</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a asp-controller="Library" asp-action="ManageBooks" class="btn btn-light">
+                    <i class="fas fa-arrow-right"></i> العودة إلى إدارة الكتب
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">@(ViewBag.IsEdit == true ? "تعديل التصنيف" : "إضافة تصنيف جديد")</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.IsEdit == true)
+                    {
+                        <form asp-controller="Category" asp-action="EditCategory" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="CategoryId" value="@ViewBag.Category.CategoryId" />
+                            <div class="mb-3">
+                                <label for="Name" class="form-label">اسم التصنيف</label>
+                                <input type="text" id="Name" name="Name" class="form-control" value="@ViewBag.Category.Name" required />
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> حفظ التغييرات
+                                </button>
+                                <a asp-action="ManageCategories" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> إلغاء
+                                </a>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-controller="Category" asp-action="AddCategory" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label for="Name" class="form-label">اسم التصنيف</label>
+                                <input type="text" id="Name" name="Name" class="form-control" required />
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> إضافة تصنيف
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">قائمة التصنيفات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>الرقم</th>
+                                    <th>اسم التصنيف</th>
+                                    <th>عدد الكتب</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var category in Model)
+                                {
+                                    <tr>
+                                        <td>@category.CategoryId</td>
+                                        <td>@category.Name</td>
+                                        <td>@(category.Books?.Count ?? 0)</td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a asp-action="ManageCategories" asp-route-id="@category.CategoryId" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-edit"></i> تعديل
+                                                </a>
+                                                <form asp-controller="Category" asp-action="DeleteCategory" method="post" onsubmit="return confirm('هل أنت متأكد من حذف التصنيف @category.Name؟');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@category.CategoryId" />
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i> حذف
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,586 @@
+﻿@{
+    Layout = null;
+    var userId = Context.Session.GetInt32("userId");
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    @RenderSection("Styles", required: false)
+    <style>
+        /* تحسينات عامة للشريط */
+        header {
+            /* z-index: 1000; */
+            position: relative;
+        }
+
+        /* تحسينات القوائم المنسدلة */
+        .dropdown > a::after {
+            display: none !important;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #2E3A2A; /* نفس لون الـ navbar */
+            color: #fff; /* لون النصوص أبيض مثل الـ navbar */
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1500; /* z-index أعلى من الـ header لضمان الظهور */
+            border-radius: 0 0 5px 5px;
+        }
+
+            .dropdown-content a {
+                color: #fff !important; /* لون النصوص داخل الـ dropdown أبيض */
+            }
+
+        .dropdown.show-dropdown .dropdown-content {
+            display: block;
+        }
+
+
+        /* تحسينات أزرار المستخدم */
+        .auth-buttons {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .auth-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: none !important;
+            transition: all 0.3s ease;
+        }
+
+            .auth-btn:hover {
+                transform: scale(1.1);
+            }
+
+        .profile-btn {
+            background: #FFD600 !important;
+            color: #222 !important;
+        }
+
+        .logout-btn {
+            background: #f14d21 !important;
+            color: #fff !important;
+        }
+
+        .login-btn {
+            background: transparent !important;
+            color: #fff !important;
+            border: 1px solid #fff !important;
+        }
+
+        /* تعديلات للجوال */
+        @@media (max-width: 991px) {
+            .auth-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem !important;
+            }
+            /* تحسين الـ responsive للـ dropdown */
+            .dropdown {
+                position: relative;
+                width: 100%;
+            }
+
+            .dropdown-content {
+                position: relative; /* لتجنب مشاكل الموضع في الـ responsive */
+                width: 100%;
+                background-color: #2E3A2A; /* نفس لون الـ navbar */
+                color: #fff; /* لون النصوص */
+                z-index: 1001; /* نفس الـ z-index */
+            }
+
+                .dropdown-content a {
+                    color: #fff !important;
+                    padding: 10px 20px;
+                    display: block;
+                    text-align: right;
+                }
+
+            .dropdown:hover .dropdown-content {
+                display: none; /* لأننا في الجوال نعتمد على النقر */
+            }
+
+            .dropdown.active .dropdown-content {
+                display: block; /* يظهر عند النقر */
+            }
+
+
+        }
+
+        .dropdown-content {
+            z-index: 9999 !important; /* 🔥 أعلى من أي شيء */
+            position: absolute;
+        }
+
+        .dropdown-content {
+            overflow: visible!important;
+        }
+
+        nav a:hover {
+            background-color: #263a2c;
+            color: white !important;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #2c3e2e;
+            color: white;
+            font-weight: 400;
+        }
+
+
+
+        .translate-box {
+            width: 140px;
+            height: 30px;
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+        }
+
+
+.login-text-responsive .mobile-text {
+    display: none;
+}
+
+.login-text-responsive .desktop-icon {
+    display: inline-block;
+}
+@@media (max-width: 768px) {
+
+    header {
+        padding: 10px;
+        background-color: #2E3A2A;
+    }
+
+    .burger {
+        font-size: 26px;
+        color: white;
+        cursor: pointer;
+        display: block;
+        float: left;
+        margin-left: 10px;
+    }
+
+    nav#main-nav {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        background-color: #2E3A2A;
+        padding: 10px;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+    }
+
+    nav#main-nav.show {
+        display: flex;
+    }
+
+    nav#main-nav a {
+        color: white;
+        padding: 10px;
+        display: block;
+        width: 100%;
+        text-align: right;
+        border-bottom: 1px solid #444;
+    }
+
+    .dropdown-content {
+        position: relative;
+        background-color: #2E3A2A;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    .dropdown-content a {
+        padding: 10px 15px;
+        border: none;
+        font-size: 15px;
+    }
+
+    .mobile-auth {
+        margin-top: 15px;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    footer {
+        padding: 20px 10px;
+        text-align: center;
+    }
+
+    .footer-columns {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .footer-col {
+        width: 100%;
+    }
+
+    .translate-box {
+        width: 100%;
+        margin: 10px 0;
+    }
+nav#main-nav a {
+    padding: 14px 20px;
+    border-bottom: 1px solid #444;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+nav#main-nav a:hover {
+    background-color: #3a4a36;
+    color: #fff;
+}
+.mobile-auth {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 25px;
+    margin-bottom: 30px;
+}
+
+.translate-auth {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.translate-box {
+    width: auto;
+    min-width: 120px;
+    max-width: 160px;
+    height: 36px;
+    text-align: center;
+}
+
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.auth-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+ .login-text-responsive .mobile-text {
+        display: inline-block;
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .login-text-responsive .desktop-icon {
+        display: none;
+    }
+
+    .auth-btn.login-btn {
+        width: auto;
+        height: auto;
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid white;
+        background-color: transparent;
+    }
+.mobile-auth {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .auth-buttons {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .auth-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+    }
+
+    .profile-btn {
+        background-color: #FFD600;
+        color: #000;
+    }
+
+    .logout-btn {
+        background-color: #f14d21;
+        color: white;
+    }
+
+    .translate-box {
+        margin-bottom: 10px;
+    }
+
+    /* إخفاء "تدعمـه" */
+    .goog-te-gadget span {
+        display: none !important;
+    }
+
+}
+@@media (max-width: 768px) {
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 75%; /* ✅ قلل العرض من 100% إلى 75% */
+        max-width: 280px;
+        height: 100vh;
+        background-color: #1e2f23;
+        padding: 20px 15px;
+        overflow-y: auto;
+        z-index: 9999;
+        box-shadow: -3px 0 10px rgba(0, 0, 0, 0.3);
+        transition: right 0.3s ease-in-out;
+    }
+
+    .nav-links li {
+        padding: 10px 0;
+        font-size: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: right;
+    }
+
+    .nav-links li:last-child {
+        border-bottom: none;
+    }
+
+    .language-selector,
+    .login-btn {
+        margin: 15px auto 0;
+        display: block;
+        width: 90%;
+        max-width: 220px;
+        font-size: 0.95rem;
+    }
+
+    .login-btn {
+        padding: 8px 20px;
+        border-radius: 30px;
+        border: 2px solid white;
+        background: transparent;
+        color: white;
+        cursor: pointer;
+    }
+
+    .login-btn:hover {
+        background: #355E3B;
+        color: #fff;
+    }
+
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">مديرية ثقافة عجلون</div>
+        <div class="burger" onclick="toggleMenu()">☰</div>
+
+        <nav id="main-nav">
+            <a asp-controller="Home" asp-action="Index">الرئيسية</a>
+
+
+            <div class="dropdown">
+                <a href="#">المكتبة و الدورات</a>
+                <div class="dropdown-content">
+                    <a asp-controller="Library" asp-action="Index">المكتبة العامة</a>
+                    <a asp-controller="Category" asp-action="Index">الدورات التدريبية</a>
+                    <a asp-controller="UserProfile" asp-action="UserCourseApplications">دوراتي</a>
+
+                </div>
+            <a asp-controller="ArtWorkshops" asp-action="Explore"> معهد الفنون  </a>
+
+            </div>
+
+            <div class="dropdown">
+                <a href="#">الأنشطة الثقافية</a>
+                <div class="dropdown-content">
+                    <a asp-controller="Festivals" asp-action="Festivals">المهرجانات</a>
+                    <a asp-controller="Events" asp-action="Events">الفعاليات</a>
+                    <a asp-controller="Handicrafts" asp-action="Index">الصناعات الثقافية</a>
+                    <a asp-controller="ArtWorks" asp-action="ArtWorks">الأعمال الفنية</a>
+                    <a asp-controller="ArtWorks" asp-action="Create">اضافة عمل فني </a>
+
+                    <a asp-controller="UserPosts" asp-action="PublicLibrary"> المشاركات الثقافية</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <a href="#">المحتوى</a>
+                <div class="dropdown-content">
+                    <a asp-controller="News" asp-action="Index">الإعلانات الثقافية</a>
+                    <a asp-controller="Home" asp-action="Articles">المجلة</a>
+                    <a asp-controller="Association" asp-action="AllAssociation">الهيئات الثقافية</a>
+                    <a asp-controller="HallBooking" asp-action="Create">حجز القاعات والمسرح</a>
+
+                    <a asp-controller="Gallery" asp-action="Gallery">معرض الصور</a>
+                </div>
+            </div>
+
+            <a asp-controller="TimeLine" asp-action="TimeLine">سردية عجلون </a>
+
+            <!-- قسم تسجيل الدخول/الخروج -->
+            <div class="mobile-auth translate-auth">
+                <div class="translate-box" id="google_translate_element"></div>
+                <div class="auth-buttons">
+                    @if (userId == null)
+                    {
+<a href="/User/SignIn" class="auth-btn login-btn login-text-responsive" title="تسجيل الدخول">
+    <i class="fas fa-sign-in-alt desktop-icon"></i>
+    <span class="mobile-text">تسجيل الدخول</span>
+</a>
+
+                    }
+                    else
+                    {
+                        <a href="/UserProfile/UserInfo" class="auth-btn profile-btn" title="الملف الشخصي">
+                            <i class="fas fa-user"></i>
+                        </a>
+                        <form method="post" action="/UserProfile/Logout" style="display:inline;">
+                            <button type="submit" class="auth-btn logout-btn" title="تسجيل الخروج">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div>
+        @RenderBody()
+    </div>
+
+    <footer>
+        <div class="footer-columns">
+            <div class="footer-col">
+                <h4>المكتبة</h4>
+                <a href="/Library"> المكتبة العامة</a>
+                <a href="/Home/Articles">المجلة</a>
+                <a href="/ArtWorks/ArtWorks">الأعمال الفنية</a>
+            </div>
+            <div class="footer-col">
+                <h4>الدورات</h4>
+                <a href="/Category">الدورات التدريبية</a>
+                <a href="/ArtWorkshops/Explore">  الورشات الفنية</a>
+            </div>
+            <div class="footer-col">
+                <h4>روابط عامة</h4>
+                <a href="/">الرئيسية</a>
+                <a href="/TimeLine/TimeLine">الجدول الزمني</a>
+                <a href="/News">الإعلانات</a>
+                <a href="/Gallery/Gallery">معرض الصور</a>
+            </div>
+        </div>
+        <a href="/UserProfile/ProjectTeam" style="color: white; font-weight: bold;">
+            Powered by Coding Academy by Orange
+        </a>
+    </footer>
+
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ar',
+                includedLanguages: 'ar,en,fr',
+                layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL
+            }, 'google_translate_element');
+        }
+
+        const gtScript = document.createElement('script');
+        gtScript.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        document.head.appendChild(gtScript);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const burger = document.querySelector('.burger');
+            const nav = document.getElementById('main-nav');
+            if (burger && nav) {
+                burger.addEventListener('click', () => {
+                    nav.classList.toggle('show');
+                });
+            }
+
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                const dropLink = dropdown.querySelector('a');
+                const dropContent = dropdown.querySelector('.dropdown-content');
+
+                dropLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    // إغلاق جميع الـ dropdowns الأخرى
+                    dropdowns.forEach(d => {
+                        if (d !== dropdown) {
+                            d.classList.remove('active');
+                        }
+                    });
+                    dropdown.classList.toggle('active');
+                });
+
+                // إغلاق الـ dropdown عند النقر خارجها
+                document.addEventListener('click', function (e) {
+                    if (!dropdown.contains(e.target)) {
+                        dropdown.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
